@@ -8,7 +8,7 @@ from collections import Counter
 
 HIT_THRESOLD = 100
 WORKS_NUM = 500
-PAGE_LIMITS = 40
+PAGE_LIMITS = 50
 
 fandoms_urls = [
 "Marvel",
@@ -56,14 +56,12 @@ fandoms_names = [
 
 fandom_popularity = [35, 20, 20, 14, 12, 9, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4]
 
-delays = [18, 15, 16, 14, 22, 19, 20, 24]
+delays = [24, 26, 28, 30, 32]
 delay = np.random.choice(delays)
 block_try_count = 0
 
 url_prefix = "https://archiveofourown.org/tags/"
 url_suffix = "/works"
-
-header = {"user_agent" : "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36", "accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", "accept-encoding" : "gzip, deflate, br", "accept-language" : "en-US,en;q=0.9", "cache-control" : "max-age=0"}
 
 ### get stuff
 for i, fandom_name in enumerate(fandoms_names) :
@@ -74,10 +72,10 @@ for i, fandom_name in enumerate(fandoms_names) :
     while True :
         print("page", page_counter, "works", work_counter)
         try :
-            html = requests.get(url_prefix + fandoms_urls[i] + url_suffix, headers = header, params = {'page': str(page_counter)})
+            html = requests.get(url_prefix + fandoms_urls[i] + url_suffix, params = {'page': str(page_counter)})
         except :
             print("blocked")
-            time.sleep(90)
+            time.sleep(200)
             block_try_count += 1
             if block_try_count >= 3 :
                 print("give up")
@@ -136,6 +134,6 @@ for i, fandom_name in enumerate(fandoms_names) :
 
     archive_df = pd.DataFrame(fandoms_tags_list, columns = ["id", "fandom", "tags"])
     #print(archive_df)
-    archive_df.to_csv("/train/" + fandom_name + "-archive.csv", index = False)
+    archive_df.to_csv("raw/" + fandom_name + "-archive.csv", index = False)
 
 # end for fandom_list

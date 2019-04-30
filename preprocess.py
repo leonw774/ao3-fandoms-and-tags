@@ -6,8 +6,8 @@ from ast import literal_eval
 dfs = []
 
 # import all data-frame
-for filename in os.listdir("train/") :
-    dfs.append(pd.read_csv("train/" + filename))
+for filename in os.listdir("raw/") :
+    dfs.append(pd.read_csv("raw/" + filename))
 
 key_word = [
 "happy ending",
@@ -38,24 +38,21 @@ for df in dfs :
     for i, tags in df["tags"].iteritems() :
         # split multi-in-one tags with key_word
         tags_set = literal_eval(tags)
+        tags_to_rm = []
         for key in key_word :
             if not key in tags_set :
                 found = False
                 for tag in tags_set :
                     if tag.find(key) != -1 :
                         found = True
+                        if not tag in tags_to_rm :
+                            tags_to_rm.append(tag)
                         break
                 if found :
                     tags_set.add(key)
         # delete multi-in-one tags
-        for key in key_word :
-            tags_to_rm = []
-            for tag in tags_set :
-                if tag.find(key) != -1 :
-                    tags_to_rm.append(tag)
-                    break
-            for tag_rm in tags_to_rm :
-                tags_set.remove(tag_rm)
+        for tag_rm in tags_to_rm :
+            tags_set.remove(tag_rm)
         # replace tags with synonyms
         for nym in synonyms.keys() :
             if nym in tags_set :

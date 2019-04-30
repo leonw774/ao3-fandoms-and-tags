@@ -6,18 +6,18 @@ from matplotlib import pyplot as plt
 dfs = []
 
 # import all data-frame
-for filename in os.listdir("preprocessed-train/") :
-    dfs.append(pd.read_csv("preprocessed-train/" + filename))
+for filename in os.listdir("train/") :
+    dfs.append(pd.read_csv("train/" + filename))
 
 rating_tags = ["not rated", "general audiences", "teen and up audiences", "mature", "explicit"]    
 
-def drawplot(tags_count, id = None, count_rank_min = 10) :
+def drawplot(tags_count, id = None, count_rank_min = 20) :
     # plot ratings
     rating_counts = [tags_count[rtag] if rtag in tags_count else 0 for rtag in rating_tags]
     plt.figure(figsize = (10, 6))
     plt.barh(rating_tags, rating_counts, height = 0.66, color = "#9c1111")
-    plt.xlabel("rating")
-    plt.ylabel("counts")
+    plt.xlabel("counts")
+    plt.ylabel("rating")
     plt.subplots_adjust(left = 0.25)
     for i, v in enumerate(rating_counts) :
         plt.text(v + 0.1, i - 0.1, "%d" % v, va = "bottom")
@@ -33,17 +33,17 @@ def drawplot(tags_count, id = None, count_rank_min = 10) :
             tags_count.pop(rtag)
     # sort dictionary into list
     sorted_tags_count = sorted(tags_count.items(), key = lambda kv: kv[1])
-    #sorted_tags_count.reverse()
+    if count_rank_min > len(sorted_tags_count) : count_rank_min = len(sorted_tags_count)
     sorted_tag = [tag_count[0] for tag_count in sorted_tags_count[-count_rank_min :]]
     sorted_count = [tag_count[1] for tag_count in sorted_tags_count[-count_rank_min :]]
     # plot tags
-    plt.figure(figsize = (10, 6))
+    plt.figure(figsize = (10 + (count_rank_min - 20) // 10, 6 + (count_rank_min - 20) // 5))
     plt.barh(sorted_tag, sorted_count, align = "edge", height = 0.4, color = "#9c1111")
-    plt.xlabel("tag")
-    plt.ylabel("counts")
-    plt.subplots_adjust(left = 0.01 * max([len(tag) for tag in sorted_tag]))
+    plt.xlabel("counts")
+    plt.ylabel("tag")
+    plt.subplots_adjust(left = 0.01 + 0.009 * max([len(tag) for tag in sorted_tag]))
     for i, v in enumerate(sorted_count) :
-        plt.text(v + 0.05, i - 0.02, "%d" % v, va = "bottom")
+        plt.text(v + 0.05, i - 0.01, "%d" % v, va = "bottom")
     if id :
         plt.title(id)
         plt.savefig("fig/" + id + "-tags.png")
@@ -71,4 +71,4 @@ for df in dfs :
             else :
                 all_tags_count[tag] = 1
     drawplot(fandom_tags_count, fandom_id)
-drawplot(all_tags_count, id = "all", count_rank_min = 20)
+drawplot(all_tags_count, id = "all", count_rank_min = 50)
