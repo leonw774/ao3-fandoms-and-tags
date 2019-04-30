@@ -114,6 +114,7 @@ dmypy.json
 .pyre/
 
 # others
+*.png
 *.csv
 *.pptx
 *.txt

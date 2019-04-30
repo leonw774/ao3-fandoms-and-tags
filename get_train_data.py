@@ -7,14 +7,14 @@ from collections import Counter
 
 
 HIT_THRESOLD = 100
-WORKS_NUM = 100
-PAGE_LIMITS = 25
+WORKS_NUM = 500
+PAGE_LIMITS = 40
 
 fandoms_urls = [
-#"Marvel",
-#"Supernatural",
-#"Harry%20Potter%20-%20J*d*%20K*d*%20Rowling",
-#"DCU",
+"Marvel",
+"Supernatural",
+"Harry%20Potter%20-%20J*d*%20K*d*%20Rowling",
+"DCU",
 "Sherlock Holmes & Related Fandoms",
 "방탄소년단%20%7C%20Bangtan%20Boys%20%7C%20BTS",
 "Star Wars",
@@ -33,10 +33,10 @@ fandoms_urls = [
 "Shingeki no Kyojin | Attack on Titan"]
 
 fandoms_names = [
-#"Marvel",
-#"Supernatural",
-#"Harry Potter",
-#"DCU",
+"Marvel",
+"Supernatural",
+"Harry Potter",
+"DCU",
 "Sherlock Holmes",
 "Bangtan Boys",
 "Star Wars",
@@ -136,6 +136,6 @@ for i, fandom_name in enumerate(fandoms_names) :
 
     archive_df = pd.DataFrame(fandoms_tags_list, columns = ["id", "fandom", "tags"])
     #print(archive_df)
-    archive_df.to_csv("/train/" + fandom_name + "-archive.csv")
+    archive_df.to_csv("/train/" + fandom_name + "-archive.csv", index = False)
 
 # end for fandom_list
