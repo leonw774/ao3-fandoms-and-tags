@@ -6,8 +6,7 @@ from bs4 import BeautifulSoup
 from collections import Counter 
 
 HIT_THRESOLD = 100
-WORKS_NUM = 1000
-PAGE_LIMITS = 100
+WORKS_NUM = 15
 
 fandoms_urls = [
 "Marvel",
@@ -64,7 +63,7 @@ url_suffix = "/works"
 
 ### get stuff
 for i, fandom_name in enumerate(fandoms_names) :
-    page_counter = 1
+    page_counter = np.random.randint(100, 200)
     work_counter = 0
     fandoms_tags_list = []
     print(fandom_name)
@@ -108,7 +107,7 @@ for i, fandom_name in enumerate(fandoms_names) :
                 fandoms_tags_list.append({"fandom" : fandom_name, "tags" : tags_set})
         
         time.sleep(np.random.choice(delays))
-        if work_counter < WORKS_NUM and page_counter < PAGE_LIMITS :
+        if work_counter < WORKS_NUM :
             page_counter += 1
         else :
             break
@@ -135,6 +134,6 @@ for i, fandom_name in enumerate(fandoms_names) :
 
     archive_df = pd.DataFrame(fandoms_tags_list, columns = ["fandom", "tags"])
     #print(archive_df)
-    archive_df.to_csv("raw/" + fandom_name + "-archive.csv", index = False)
+    archive_df.to_csv("test/" + fandom_name + "-archive.csv", index = False)
 
 # end for fandom_list
