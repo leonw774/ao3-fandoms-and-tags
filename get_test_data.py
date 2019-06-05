@@ -124,7 +124,7 @@ for i, fandom_name in enumerate(fandoms_names) :
     # know what to remove
     tags_to_remove = []
     for key, value in all_tags_counter.items() :
-        if value < 2 :
+        if value <= 2 :
             tags_to_remove.append(key)
     # remove        
     for ft_par in fandoms_tags_list : 
@@ -134,6 +134,6 @@ for i, fandom_name in enumerate(fandoms_names) :
 
     archive_df = pd.DataFrame(fandoms_tags_list, columns = ["fandom", "tags"])
     #print(archive_df)
-    archive_df.to_csv("test/" + fandom_name + "-archive.csv", index = False)
+    archive_df.to_csv("test/" + fandom_name + "-raw.csv", index = False)
 
 # end for fandom_list

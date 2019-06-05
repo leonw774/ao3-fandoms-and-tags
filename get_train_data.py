@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from collections import Counter 
 
 HIT_THRESOLD = 100
-WORKS_NUM = 1000
+WORKS_LIMIT = 1000
 PAGE_LIMITS = 100
 
 fandoms_urls = [
@@ -55,7 +55,7 @@ fandoms_names = [
 
 fandom_popularity = [35, 20, 20, 14, 12, 9, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4]
 
-delays = [24, 26, 28, 30, 32]
+delays = [30, 32, 34, 36]
 delay = np.random.choice(delays)
 block_try_count = 0
 
@@ -108,30 +108,10 @@ for i, fandom_name in enumerate(fandoms_names) :
                 fandoms_tags_list.append({"fandom" : fandom_name, "tags" : tags_set})
         
         time.sleep(np.random.choice(delays))
-        if work_counter < WORKS_NUM and page_counter < PAGE_LIMITS :
+        if work_counter < WORKS_LIMIT and page_counter < PAGE_LIMITS :
             page_counter += 1
         else :
             break
-
-    ### preprocess stuff
-    # count
-    all_tags_counter = {}
-    for ft_par in fandoms_tags_list :
-        for tag in ft_par["tags"] :
-            if not tag in all_tags_counter :
-                all_tags_counter[tag] = 1
-            else :
-                all_tags_counter[tag] += 1
-    # know what to remove
-    tags_to_remove = []
-    for key, value in all_tags_counter.items() :
-        if value < 2 :
-            tags_to_remove.append(key)
-    # remove        
-    for ft_par in fandoms_tags_list : 
-        for rtag in tags_to_remove :
-            if rtag in ft_par["tags"] :
-                ft_par["tags"].remove(rtag)
 
     archive_df = pd.DataFrame(fandoms_tags_list, columns = ["fandom", "tags"])
     #print(archive_df)
