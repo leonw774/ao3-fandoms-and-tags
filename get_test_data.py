@@ -61,6 +61,8 @@ block_try_count = 0
 url_prefix = "https://archiveofourown.org/tags/"
 url_suffix = "/works"
 
+tag_dict = pd.read_csv("tag_dict.csv").columns
+
 ### get stuff
 for i, fandom_name in enumerate(fandoms_names) :
     page_counter = np.random.randint(100, 200)
@@ -113,24 +115,12 @@ for i, fandom_name in enumerate(fandoms_names) :
             break
 
     ### preprocess stuff
-    # count
-    all_tags_counter = {}
-    for ft_par in fandoms_tags_list :
-        for tag in ft_par["tags"] :
-            if not tag in all_tags_counter :
-                all_tags_counter[tag] = 1
-            else :
-                all_tags_counter[tag] += 1
-    # know what to remove
-    tags_to_remove = []
-    for key, value in all_tags_counter.items() :
-        if value <= 2 :
-            tags_to_remove.append(key)
-    # remove        
+    tags_to_remove = set()
     for ft_par in fandoms_tags_list : 
-        for rtag in tags_to_remove :
-            if rtag in ft_par["tags"] :
-                ft_par["tags"].remove(rtag)
+        for tag in ft_par["tags"] :
+            if not tag in tag_dict :
+                tags_to_remove.add(tag)
+        ft_par["tags"] = ft_par["tags"] - tags_to_remove
 
     archive_df = pd.DataFrame(fandoms_tags_list, columns = ["fandom", "tags"])
     #print(archive_df)

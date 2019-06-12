@@ -11,7 +11,7 @@ for filename in os.listdir("train/") :
 rating_tags = ["not rated", "general audiences", "teen and up audiences", "mature", "explicit"]
 rating_name = ["not rated", "general", "teen", "mature", "explicit"]
 
-def draw_fandom_plot(tags_count, id, max_rank = 20) :
+def draw_fandom_plot(tags_count, id, max_rank) :
     # plot ratings
     rating_counts = [tags_count[rtag] if rtag in tags_count else 0 for rtag in rating_tags]
     plt.figure(figsize = (12, 10))
@@ -38,16 +38,16 @@ def draw_fandom_plot(tags_count, id, max_rank = 20) :
     plt.subplot(1,2,2)
     plt.barh(sorted_tag, sorted_count, height = 0.4, color = "#9c1111")
     plt.xlabel("counts")
-    plt.subplots_adjust(wspace = 0.02 + 0.01 * max([len(tag) for tag in sorted_tag]))
+    plt.subplots_adjust(wspace = 0.0125 * max([len(tag) for tag in sorted_tag]))
     for i, v in enumerate(sorted_count) :
-        plt.text(v + 0.2, i - 0.1, "%d" % v, va = "bottom")
+        plt.text(v + 0.2, i - 0.2, "%d" % v, va = "bottom")
     if id :
         plt.title(id)
         plt.savefig("fig/fandom/" + id + ".png")
     plt.close()
 # end def drawplot
 
-def draw_tag_plot(tag_name, fandoms_count) :
+def draw_tag_plot(tag_name, count, fandoms_count) :
     # plot fandoms
     fandom_name = list(fandoms_count.keys())
     counts = list(fandoms_count.values())
@@ -56,16 +56,17 @@ def draw_tag_plot(tag_name, fandoms_count) :
     plt.xlabel("counts")
     plt.ylabel("fandom name")
     for i, v in enumerate(counts) :
-        plt.text(v + 0.1, i - 0.4, "%d" % v, va = "bottom")
+        plt.text(v + 0.1, i - 0.25, "%d" % v, va = "bottom")
     plt.subplots_adjust(left = 0.3)
     plt.title(tag_name)
-    plt.savefig("fig/tag/" + tag_name.replace("/", "-") + ".png")
+    plt.savefig("fig/tag/" + tag_name.replace("/", "-") + "-" + str(count) + ".png")
     plt.close()
 # end def draw_tag_plot
 
 all_tags_count = {} # {"tag" : count}
 tags_fandoms_count = {} # {"tag" : {"fandom_id" : count}}
 fandom_names = []
+SHOW_RANK = 30
 
 for df in dfs :
     fandom_id = df["fandom"][0]
@@ -91,16 +92,16 @@ for df in dfs :
                 all_tags_count[tag] += 1
             else :
                 all_tags_count[tag] = 1
-    draw_fandom_plot(fandom_tags_count, fandom_id)
+    draw_fandom_plot(fandom_tags_count, fandom_id, max_rank = SHOW_RANK // 2)
 
-draw_fandom_plot(all_tags_count, "all", max_rank = 40)
+draw_fandom_plot(all_tags_count, "all", max_rank = SHOW_RANK)
 
 all_counts = [all_tags_count[key] for key in all_tags_count]
-print("all_counts (len:", len(all_counts), ")\n", all_counts[:10])
+print("all_counts (len:", len(all_counts), ")")
 
 # keep tags with most ocurrence
 sorted_tags_count = sorted(all_tags_count.items(), key = lambda kv: kv[1])
-sorted_tags = [all_tags_count[0] for all_tags_count in sorted_tags_count[-20 :]]
+sorted_tags = [all_tags_count[0] for all_tags_count in sorted_tags_count[-SHOW_RANK :]]
 sorted_tags_fandoms_count = {k : tags_fandoms_count[k] for k in sorted_tags}
 
 for tag_name, fandoms_count in sorted_tags_fandoms_count.items() :
@@ -108,4 +109,4 @@ for tag_name, fandoms_count in sorted_tags_fandoms_count.items() :
     for fandom_id in fandom_names :
         if not fandom_id in fandoms_count :
             fandoms_count[fandom_id] = 0
-    draw_tag_plot(tag_name, fandoms_count)
+    draw_tag_plot(tag_name, all_tags_count[tag_name], fandoms_count)

@@ -11,6 +11,12 @@ for filename in os.listdir("raw/") :
     dfs.append(pd.read_csv("raw/" + filename))
 
 key_word = [
+"m/m",
+"f/m",
+"f/f",
+"gen",
+"multi",
+"other",
 "happy ending",
 "bad ending",
 "angst",
@@ -25,6 +31,8 @@ synonyms = {
 "au" : "alternate universe",
 "a/b/o" : "alpha/beta/omega dynamics",
 "abo" : "alpha/beta/omega dynamics",
+"a/b/o dynamics" : "alpha/beta/omega dynamics",
+"abo dynamics" : "alpha/beta/omega dynamics",
 }
 
 all_tags_count = {}
@@ -45,20 +53,18 @@ for df in dfs :
 
         # extract key_word from sub tags
         # and delete key_word divergent tags
-        tags_to_add = []
-        tags_to_remove = []
+        tags_to_add = set()
+        tags_to_remove = set()
         for tag in tags_set :
-            found_key = False
+            found_key = set()
             for key in key_word :
                 if tag.find(key) != -1 :
-                    tags_to_add.append(key)
-                    found_key = True
-            if found_key :
-                tags_to_remove.append(tag)
-        for tag_add in tags_to_add :
-            tags_set.add(tag_add)
-        for tag_rm in tags_to_remove :
-            tags_set.remove(tag_rm)
+                    found_key.add(key)
+            if len(found_key) > 1:
+                tags_to_remove.add(tag)
+                tags_to_add.update(found_key)
+        tags_set = tags_set - tags_to_remove
+        tags_set = tags_set | tags_to_add
         
         # replace tags with synonyms
         for nym in synonyms.keys() :
@@ -86,13 +92,14 @@ for df in dfs :
 
 # decide min_remove_count
 counts = [all_tags_count[key] for key in all_tags_count]
-min_remove_count = int(np.quantile(counts, 0.9))
+min_remove_count = int(np.mean(counts) + 1)
 
 print("before tags count:", len(counts))
 print("max count:", max(counts))
 print("min_remove_count", min_remove_count)
 
-tags_to_remove = ["other additional tags to be added"]
+print("removing tags")
+tags_to_remove = set(["other additional tags to be added", "no category"])
 for df in dfs :
     fandom_id = df["fandom"][0]
     for i, tags in df["tags"].iteritems() :
@@ -104,20 +111,23 @@ for df in dfs :
                 #    tags_to_remove.append(tag)
                 # delete tags that appear less than min
                 if all_tags_count[tag] < min_remove_count :
-                    tags_to_remove.append(tag)
+                    tags_to_remove.add(tag)
+        # end for tags_set
+    # end for df["tags"]
+# end for dfs
 
+print("write preprocessed data")
 for df in dfs :
     fandom_id = df["fandom"][0]
     for i, tags in df["tags"].iteritems() :
         tags_set = literal_eval(tags)
-        for tag_tm in tags_to_remove :
-            if tag_tm in tags_set :
-                tags_set.remove(tag_tm)
+        tags_set = tags_set - tags_to_remove
         df.at[i, "tags"] = str(tags_set)
     df.to_csv("train/" + fandom_id + ".csv", index = False)
 
 # replace tag strings to numbers
 # cause it will be easier to code
+print("write tag dictionary")
 tag_dict = {}
 count = 0
 for df in dfs :

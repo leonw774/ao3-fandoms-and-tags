@@ -3,7 +3,7 @@ import pandas as pd
 import itertools
 from ast import literal_eval
 
-minsup = 0.01
+minsup = 0.03
 minconf = 0.5
 
 # import all data-frame
@@ -12,7 +12,6 @@ def get_train_df() :
     for filename in os.listdir("train/") :
         dfs.append(pd.read_csv("train/" + filename))
     train_df = pd.concat(dfs)
-    train_df.drop(columns = ["id"])
     return train_df
 
 def preprocess_train_df(train_df) :
@@ -21,7 +20,7 @@ def preprocess_train_df(train_df) :
     count = 0
     # replace tag strings to numbers
     # cause it will be easier to code
-    for index, row in train_df.iterrows():
+    for index, row in train_df.iterrows() :
         fandom_id = row["fandom"]
         tags_set = literal_eval(row["tags"])
         tags_set.add(fandom_id)
@@ -91,7 +90,7 @@ while True :
             freq_item_set[tier + 1].add(c)
     tier += 1
 
-# delete 1-item sets because it can be rule
+# delete 1-item sets because it can not be rule
 freq_item_set = freq_item_set[1:]
 rules = dict()
 
@@ -99,7 +98,7 @@ rules = dict()
 for tier in freq_item_set :
     for item_set in tier :
         ignore_set = set()
-        for n in range(len(item_set) - 1, 1, -1) :
+        for n in range(len(item_set) - 1, 0, -1) :
             survived = False
             for c in itertools.combinations(item_set, n) :
                 c = frozenset(c)
@@ -117,6 +116,7 @@ for tier in freq_item_set :
 
 # print rule
 file = open("rules.txt", "w+")
+file.write("minsup: " + str(minsup) + "\nminconf: " + str(minconf) + "\n")
 for key, value in rules.items() :
     rule_string = "("
     for k in key :
