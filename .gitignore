@@ -117,5 +117,6 @@ dmypy.json
 *.png
 *.csv
 *.pptx
+*.docx
 *.h5
 *.txt

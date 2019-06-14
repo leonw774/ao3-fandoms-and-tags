@@ -1,10 +1,15 @@
 import os
+import sys
 import pandas as pd
 import itertools
 from ast import literal_eval
 
-minsup = 0.03
-minconf = 0.5
+if len(sys.argv) == 3 :
+    minsup = float(sys.argv[1])
+    minconf = float(sys.argv[2])
+else :
+    minsup = 0.02
+    minconf = 0.65
 
 # import all data-frame
 def get_train_df() :
@@ -102,14 +107,14 @@ for tier in freq_item_set :
             survived = False
             for c in itertools.combinations(item_set, n) :
                 c = frozenset(c)
-                if not any([x < c for x in ignore_set]) :
+                if not any([c < x for x in ignore_set]) :
                     conf = confidence(c, item_set)
-                    #print(c, ":", conf)
+                    #print(c, "/", item_set, ":", conf)
                     if conf < minconf :
                         ignore_set.add(c)
                     else :
                         survived = True
-                        #print(c, ":", conf)
+                        #print(c, "/", item_set, ":", conf)
                         rules[c] = item_set - c
             if not survived :
                 break

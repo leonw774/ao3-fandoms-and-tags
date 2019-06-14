@@ -4,10 +4,29 @@ import numpy as np
 import pandas as pd
 from ast import literal_eval
 
-from keras import optimizers
-from keras.models import Sequential, Model, load_model
-from keras.layers import Activation, Dense, BatchNormalization, LeakyReLU
-from keras.callbacks import EarlyStopping
+from sklearn.ensemble import RandomForestClassifier
+
+fandoms_names = [
+"Marvel",
+"Supernatural",
+"Harry Potter",
+"DCU",
+"Sherlock Holmes",
+"Bangtan Boys",
+"Star Wars",
+"Doctor Who",
+"Voltron",
+"JRR-TOLKIEN",
+"Dragon Age",
+"Star Trek",
+"One Direction",
+"My Hero Academia",
+"Haikyuu",
+"MS Paint Adventures",
+"Once Upon a Time",
+"Stargate",
+"Naruto",
+"Attack on Titan"]
 
 tag_dict = pd.read_csv("tag_dict.csv").columns
 
@@ -46,17 +65,18 @@ def preprocess_df(train_df, test_df) :
     test_df = pd.DataFrame(tag_table).fillna(0)
     
     s = len(train_df)
-    onehot = pd.concat([train_df, test_df], sort = False)
+    onehot = pd.concat([train_df, test_df], sort = False).fillna(0)
     print(onehot.shape)
     onehot = pd.get_dummies(onehot).to_numpy()
     train_array = onehot[:s]
     test_array = onehot[s:]
     
-    s = len(label_df)
-    onehot = pd.concat([label_df, answer_df], sort = False)
-    onehot = pd.get_dummies(onehot).to_numpy()
-    label_array = onehot[:s]
-    answer_array = onehot[s:]
+    for i, name in enumerate(fandoms_names) :
+        print(name, i)
+        label_df.replace(to_replace = name, value = i)
+        answer_df.replace(to_replace = name, value = i)
+    label_array = label_df.to_numpy()
+    answer_array = answer_df.to_numpy()
     return train_array, label_array, test_array, answer_array
 
 train_array, label_array, test_array, answer_array = preprocess_df(get_df("train"), get_df("test"))
@@ -67,28 +87,13 @@ shuffle_array = np.random.permutation(test_array.shape[0])
 test_array = test_array[shuffle_array]
 answer_array = answer_array[shuffle_array]
 print(train_array.shape, label_array.shape, test_array.shape, answer_array.shape)
-#print(train_array[:2])
+#print(train_array[:10])
+#print(label_array[:10])
 
-if len(sys.argv) == 2 :
-    model = load_model(sys.argv[1])
-else :
-    model = Sequential()
-    model.add(Dense(units = 100, input_shape = train_array.shape[1:], activation = LeakyReLU(0.2)))
-    model.add(BatchNormalization())
-    model.add(Dense(units = 80, activation = LeakyReLU(0.2)))
-    model.add(BatchNormalization())
-    model.add(Dense(units = 60, activation = LeakyReLU(0.2)))
-    model.add(BatchNormalization())
-    model.add(Dense(units = 40, activation = LeakyReLU(0.2)))
-    model.add(BatchNormalization())
-    model.add(Dense(units = label_array.shape[1], activation = "softmax"))
-    opti = optimizers.adam(lr = 0.001)
-    model.compile(loss = "categorical_crossentropy", optimizer = opti, metrics = ["accuracy"])
-    model.summary()
+model = RandomForestClassifier()
 
-    model.fit(train_array, label_array, epochs = 64, shuffle = True, validation_split = 0.05, batch_size = 16)
-    model.save("nn_model.h5")
+model.fit(train_array, label_array)
 
-print(model.evaluate(test_array, answer_array))
+print(model.score(test_array, answer_array))
 
 

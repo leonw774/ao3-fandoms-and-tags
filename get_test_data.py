@@ -5,8 +5,8 @@ import time
 from bs4 import BeautifulSoup
 from collections import Counter 
 
-HIT_THRESOLD = 100
-WORKS_NUM = 15
+HIT_THRESOLD = 20
+WORKS_NUM = 50
 
 fandoms_urls = [
 "Marvel",

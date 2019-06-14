@@ -92,7 +92,7 @@ for df in dfs :
 
 # decide min_remove_count
 counts = [all_tags_count[key] for key in all_tags_count]
-min_remove_count = int(np.mean(counts) + 1)
+min_remove_count = 50 #20 #int(np.mean(counts) + 1)
 
 print("before tags count:", len(counts))
 print("max count:", max(counts))
