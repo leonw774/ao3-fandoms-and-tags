@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 from ast import literal_eval
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
 
 fandoms_names = [
 "Marvel",
@@ -66,13 +67,12 @@ def preprocess_df(train_df, test_df) :
     
     s = len(train_df)
     onehot = pd.concat([train_df, test_df], sort = False).fillna(0)
-    print(onehot.shape)
+    #print(onehot.shape)
     onehot = pd.get_dummies(onehot).to_numpy()
     train_array = onehot[:s]
     test_array = onehot[s:]
     
     for i, name in enumerate(fandoms_names) :
-        print(name, i)
         label_df.replace(to_replace = name, value = i)
         answer_df.replace(to_replace = name, value = i)
     label_array = label_df.to_numpy()
@@ -90,10 +90,20 @@ print(train_array.shape, label_array.shape, test_array.shape, answer_array.shape
 #print(train_array[:10])
 #print(label_array[:10])
 
+print("RandomForestClassifier")
 model = RandomForestClassifier()
-
 model.fit(train_array, label_array)
+print("train acc:", model.score(train_array, label_array))
+print("test acc:", model.score(test_array, answer_array))
 
-print(model.score(test_array, answer_array))
+print("AdaBoostClassifier")
+model = AdaBoostClassifier()
+model.fit(train_array, label_array)
+print("train acc:", model.score(train_array, label_array))
+print("test acc:", model.score(test_array, answer_array))
 
-
+print("GaussianNB")
+model = GaussianNB()
+model.fit(train_array, label_array)
+print("train acc:", model.score(train_array, label_array))
+print("test acc:", model.score(test_array, answer_array))

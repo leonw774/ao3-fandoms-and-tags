@@ -73,22 +73,24 @@ if len(sys.argv) == 2 :
     model = load_model(sys.argv[1])
 else :
     model = Sequential()
-    model.add(Dense(units = 100, input_shape = train_array.shape[1:], activation = LeakyReLU(0.2)))
+    model.add(Dense(units = 80, input_shape = train_array.shape[1:]))
+    model.add(Activation("relu"))
     model.add(BatchNormalization())
-    model.add(Dense(units = 80, activation = LeakyReLU(0.2)))
+    model.add(Dense(units = 40))
+    model.add(Activation("relu"))
     model.add(BatchNormalization())
-    model.add(Dense(units = 60, activation = LeakyReLU(0.2)))
-    model.add(BatchNormalization())
-    model.add(Dense(units = 40, activation = LeakyReLU(0.2)))
+    model.add(Dense(units = 40))
+    model.add(Activation("relu"))
     model.add(BatchNormalization())
     model.add(Dense(units = label_array.shape[1], activation = "softmax"))
-    opti = optimizers.adam(lr = 0.001)
+    opti = optimizers.rmsprop(lr = 0.01, decay = 1e-2)
     model.compile(loss = "categorical_crossentropy", optimizer = opti, metrics = ["accuracy"])
     model.summary()
 
-    model.fit(train_array, label_array, epochs = 64, shuffle = True, validation_split = 0.05, batch_size = 16)
+    model.fit(train_array, label_array, epochs = 16, shuffle = True, validation_split = 0.05, batch_size = 32)
     model.save("nn_model.h5")
 
-print(model.evaluate(test_array, answer_array))
+print("train acc:", model.evaluate(train_array, label_array))
+print("test acc:", model.evaluate(test_array, answer_array))
 
 
